@@ -296,3 +296,38 @@ los `.c` del SDK contra un stub `tools/stubs/orbis/libkernel.h`, que **nunca**
 entra en el build real. Sirve para detectar errores de include/tipos en la PC:
 así se encontró, por ejemplo, que cuatro archivos pedían `goldhen/Common.h`
 cuando la ruta correcta era `Common.h`.
+
+### Creación del hilo del menú (varía según la versión del toolchain)
+
+El plugin necesita un hilo propio dentro del proceso del juego. No todas las
+versiones de OpenOrbis exponen la misma API:
+
+| toolchain | API disponible |
+|---|---|
+| algunos builds | `sceKernelCreateThread()` + `sceKernelStartThread()` |
+| **0.5.4 (el que usa este port)** | **sólo** los wrappers pthread: `scePthreadCreate()` (el header `orbis/libkernel.h` no declara `sceKernelCreateThread`) |
+
+Por eso `src/main.cpp` usa `scePthreadCreate()` con atributos explícitos:
+
+```c
+OrbisPthreadAttr attr;
+OrbisPthread     thread;
+scePthreadAttrInit(&attr);
+scePthreadAttrSetstacksize(&attr, 0x80000);      /* 512 KB */
+scePthreadCreate(&thread, &attr, paradise_thread, NULL, "paradise_gta");
+```
+
+El stack se fija a mano porque el default de pthread en PS4 es chico para el
+recorrido de la tabla de natives y el árbol de páginas. `scePthreadCreate()`
+está exportado por el stub `lib/libkernel.so`, así que basta `-lkernel`; el
+`Makefile` agrega además `-lpthread` y `-lScePosix` por `usleep`/`clock_gettime`.
+
+Comprobación rápida en una toolchain nueva:
+
+```bash
+grep -c "scePthreadCreate" "$OO_PS4_TOOLCHAIN/lib/libkernel.so"     # > 0
+grep -n  "scePthreadAttrSetstacksize" "$OO_PS4_TOOLCHAIN/include/orbis/libkernel.h"
+```
+
+Si en cambio aparece `sceKernelCreateThread` declarado, también sirve: la firma
+es `(name, entry, prio, stack, attr, param)` y no requiere el paso de "start".

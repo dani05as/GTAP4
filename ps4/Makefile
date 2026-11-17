@@ -73,7 +73,7 @@ COMMONFLAGS := --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c -O2 \
 CXXFLAGS    := $(COMMONFLAGS) -std=c++17 -fno-exceptions -fno-rtti \
                -isystem $(TOOLCHAIN)/include/c++/v1
 LDFLAGS     := -m elf_x86_64 -pie --script $(TOOLCHAIN)/link.x -e _init \
-               --eh-frame-hdr -L$(TOOLCHAIN)/lib -lSceLibcInternal -lkernel -lSceSysmodule
+               --eh-frame-hdr -L$(TOOLCHAIN)/lib -lSceLibcInternal -lkernel -lSceSysmodule -lpthread -lScePosix
 
 # ---- sources ----------------------------------------------------------
 CPP_SRC  := $(wildcard $(SRC_DIR)/*.cpp)
