@@ -135,10 +135,25 @@ o por partes:
 ```bash
 make natives     # include/natives_ps4.h + build/native_report.md
 make             # build/paradise_gta.prx
+make syntax      # chequeo de sintaxis en la PC (sin toolchain de PS4)
 make hostcheck   # corre el menú en la PC con natives falsos
 ```
 
 Salida: **`build/paradise_gta.prx`**.
+
+### Windows (MSYS2)
+
+```bash
+pacman -S --needed --noconfirm mingw-w64-x86_64-clang mingw-w64-x86_64-lld make python dos2unix
+cd ~/ps4
+export OO_PS4_TOOLCHAIN=F:/OpenOrbis/PS4Toolchain   # barra normal
+make
+```
+
+El Makefile detecta MSYS2/MinGW solo (`CDIR=windows`, `create-fself.exe`) y
+normaliza la ruta del toolchain con `cygpath`, así que acepta tanto `F:/...`
+como `/f/...`. `create-fself.exe` es .NET: si falla pidiendo el runtime,
+instalá .NET 8. Detalle paso a paso en [COMO_EMPEZAR.md](COMO_EMPEZAR.md).
 
 ### Instalar en la consola
 

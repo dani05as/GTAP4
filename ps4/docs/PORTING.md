@@ -275,3 +275,24 @@ Los offsets que sí quieras usar van a `/data/paradise/offsets.txt` (ver
 Cada uno de esos puntos tiene su log; en la consola, la página
 **Debug / Native Layer** del menú muestra tabla, módulo, registros, natives y si
 calibró.
+
+---
+
+## 12. Notas de build (Windows y SDK vendorizado)
+
+**El SDK de GoldHEN está vendorizado plano**: los headers viven en
+`sdk/goldhen/include/*.h`, así que se incluyen como `#include "Common.h"` con
+`-Isdk/goldhen/include`. (Si se copia el SDK con la estructura del repo original
+`inc/goldhen/…`, los `#include "goldhen/Common.h"` también funcionan; este port
+usa la forma plana.)
+
+**Windows / MSYS2.** El `Makefile` detecta `MINGW*`/`MSYS*`/`CYGWIN*` y elige
+`bin/windows/create-fself.exe`; además normaliza `OO_PS4_TOOLCHAIN` con
+`cygpath -m`, de modo que acepta tanto `/f/OpenOrbis/...` como
+`F:/OpenOrbis/...`. `create-fself.exe` necesita el runtime de .NET.
+
+**Chequeo de sintaxis sin toolchain.** `make syntax` compila todos los `.cpp` y
+los `.c` del SDK contra un stub `tools/stubs/orbis/libkernel.h`, que **nunca**
+entra en el build real. Sirve para detectar errores de include/tipos en la PC:
+así se encontró, por ejemplo, que cuatro archivos pedían `goldhen/Common.h`
+cuando la ruta correcta era `Common.h`.

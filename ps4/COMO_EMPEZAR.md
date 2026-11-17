@@ -34,34 +34,76 @@ cuando abre el juego. No se instala como un juego, se copia en una carpeta.
 ### Paso 1 — Compilar (convertir el proyecto en el archivo `.prx`)
 
 **Yo no pude generarte el `.prx` ya hecho**: en el entorno donde trabajo no hay
-compilador de PS4 y la descarga del compilador está bloqueada. Así que este paso
-hay que hacerlo en una PC (la tuya o la de alguien que sepa un poco de Linux).
+compilador de PS4 y la descarga del compilador está bloqueada. Así que hay que
+compilarlo en tu PC (una sola vez, tarda pocos minutos).
 
-En una PC con Linux (o WSL en Windows):
+Necesitás dos cosas:
+
+| cosa | dónde |
+|---|---|
+| **OpenOrbis PS4 Toolchain** | https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/releases (v0.5.4 este caso) |
+| **clang + make + python** | en Windows se instalan con MSYS2 (abajo) |
+
+#### Ruta A — Windows (la que usa la mayoría)
+
+1. Instalar **MSYS2**: https://www.msys2.org (siguiente, siguiente, finalizar).
+2. Abrir del menú Inicio **"MSYS2 MINGW64"** (esa ventana, no otra) y pegar:
+
+   ```bash
+   pacman -S --needed --noconfirm mingw-w64-x86_64-clang mingw-w64-x86_64-lld make python dos2unix
+   ```
+
+3. Copiar el proyecto a tu carpeta de usuario (más rápido que compilar sobre `F:`)
+   y limpiar los finales de línea que agrega Windows:
+
+   ```bash
+   cp -r /f/ps4 ~/ps4
+   cd ~/ps4
+   dos2unix Makefile build.sh hostcheck/Makefile
+   ```
+
+4. Compilar, apuntando al toolchain (con **barra normal**, `F:/...`, no `F:\...`):
+
+   ```bash
+   export OO_PS4_TOOLCHAIN=F:/OpenOrbis/PS4Toolchain
+   make
+   ```
+
+   El Makefile detecta solo que está en Windows y usa `bin/windows/create-fself.exe`.
+   (Si alguna vez hace falta forzarlo: `make CDIR=windows`.)
+
+Si todo sale bien, termina con:
+
+```
+built build/paradise_gta.prx
+```
+
+y el archivo queda en `~/ps4/build/paradise_gta.prx`. Para pasarlo a Windows:
 
 ```bash
-# 1. bajar el compilador de PS4 (OpenOrbis), versión v0.5.4
-#    https://github.com/OpenOrbis/OpenOrbis-PS4-Toolchain/releases
-#    descomprimirlo, por ejemplo en /home/tu-usuario/ps4-toolchain
+cp build/paradise_gta.prx /f/
+```
 
-# 2. decirle al proyecto dónde está
-export OO_PS4_TOOLCHAIN=/home/tu-usuario/ps4-toolchain
+#### Ruta B — Linux o WSL
 
-# 3. compilar
+```bash
+export OO_PS4_TOOLCHAIN=/ruta/al/OpenOrbis-PS4-Toolchain
 cd ps4
-./build.sh
+./build.sh          # regenera natives (si está el árbol de PS3) + verifica hashes + compila
 ```
 
-Si todo sale bien, al final te dice:
+#### Si algo falla en este paso
 
-```
-done: build/paradise_gta.prx
-```
+| mensaje | qué hacer |
+|---|---|
+| `You must install .NET` | `create-fself.exe` es un programa .NET: instalá el **.NET Runtime 8** desde dotnet.microsoft.com y repetí el `make` |
+| `ERROR: OO_PS4_TOOLCHAIN is not set` | falta el `export` en esa misma ventana |
+| `ERROR: .../link.x not found` | `OO_PS4_TOOLCHAIN` tiene que apuntar a la carpeta que contiene `link.x`, `include`, `lib` y `bin` |
+| `clang: command not found` | ventana equivocada: usá **MSYS2 MINGW64** y repetí el `pacman` |
+| `bad interpreter: ...^M` | finales de línea de Windows: `dos2unix Makefile build.sh` |
 
-Ese archivo es el mod.
-
-> Si algo falla en este paso, mandame el texto del error y lo miramos juntos.
-> Es el paso donde más gente se traba y no es tu culpa.
+> Si aparece cualquier otro error, mandame las últimas 20 líneas del texto y lo
+> miramos juntos. Es el paso donde más gente se traba y no es tu culpa.
 
 ### Paso 2 — Copiar el archivo a la PS4
 
