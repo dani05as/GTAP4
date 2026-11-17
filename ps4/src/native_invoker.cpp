@@ -28,7 +28,7 @@
 
 #ifndef PARADISE_HOSTCHECK
 #include <orbis/libkernel.h>
-#include "goldhen/Common.h"
+#include "Common.h"
 #endif
 
 namespace native {

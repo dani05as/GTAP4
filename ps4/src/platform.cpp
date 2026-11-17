@@ -32,7 +32,7 @@ void notify(const char* text) { LOGI("notify: %s", text); }
 
 #include <time.h>
 #include <orbis/libkernel.h>
-#include "goldhen/Common.h"
+#include "Common.h"
 #include "native_invoker.h"
 #include "gta_ext.h"
 

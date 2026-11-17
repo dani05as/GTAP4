@@ -24,7 +24,7 @@
 
 #ifdef __cplusplus
 /* GoldHEN SDK: klog() is printf() redirected to the GoldHEN log socket. */
-#include "goldhen/Common.h"
+#include "Common.h"
 #endif
 
 #define LOGI(...) do { klog("[paradise] " __VA_ARGS__); klog("\n"); } while (0)

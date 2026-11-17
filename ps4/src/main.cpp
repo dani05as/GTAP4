@@ -19,7 +19,7 @@
 
 #ifndef PARADISE_HOSTCHECK
 #include <orbis/libkernel.h>
-#include "goldhen/Common.h"
+#include "Common.h"
 #endif
 
 #include "native_invoker.h"
@@ -91,8 +91,10 @@ PARADISE_PUBLIC int32_t plugin_load(int32_t argc, const char* argv[]) {
     LOGI("GoldHEN SDK 0x%08x / system 0x%08x", GOLDHEN_SDK_VERSION, sys_sdk_version());
 
     g_running = true;
+    /* Last parameter is declared differently across toolchain versions
+       (uint32_t vs void*); 0 is valid for both. */
     g_thread = sceKernelCreateThread("paradise_gta", (void*)paradise_loop, 0x100,
-                                     0x40000, 0, nullptr);
+                                     0x40000, 0, 0);
     if (g_thread < 0) {
         LOGE("could not create menu thread (0x%x)", g_thread);
         g_running = false;
