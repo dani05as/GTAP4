@@ -7,6 +7,10 @@ Esta carpeta es el proyecto PS4. La base de PS3 original quedó **intacta** en
 `../ParadiseGTA_optimized_2020/`, porque se usa
 como fuente de verdad para regenerar la capa de natives y para copiar páginas.
 
+> **¿No sabés nada de mod menus?** Empezá por **[COMO_EMPEZAR.md](COMO_EMPEZAR.md)**
+> — está explicado sin tecnicismos: qué es cada cosa, los 3 pasos para instalarlo y
+> qué hacer si no aparece el menú.
+
 ---
 
 ## 1. Qué se hizo (y qué no se puede hacer)
