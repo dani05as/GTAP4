@@ -1,0 +1,11 @@
+# build outputs (keep the audit artifacts)
+ps4/build/*
+!ps4/build/native_report.md
+!ps4/build/native_hash_map.json
+ps4/hostcheck/build/
+*.o
+*.elf
+*.oelf
+*.prx
+__pycache__/
+*.pyc

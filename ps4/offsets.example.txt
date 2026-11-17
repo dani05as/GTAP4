@@ -1,0 +1,32 @@
+# ---------------------------------------------------------------------------
+# ParadiseGTA PS4 port -- optional offsets / patterns
+#
+# Copy to the console as:  /data/paradise/offsets.txt
+#
+# You only need this for the features that poke game memory instead of calling
+# natives (modder protection, freeze patches, force host, RCE/RTM, recovery).
+# Everything else works without this file: the native table is discovered at
+# runtime by validation (see src/native_invoker.cpp).
+#
+# Values are 0x-prefixed hex, `#` starts a comment.  Addresses can be given
+# absolute or as an offset from the game module base -- both are accepted by
+# the accessors in include/offsets.h.
+# ---------------------------------------------------------------------------
+
+# Native registration table. Leave commented out unless the automatic
+# discovery fails on your build; then put the address of the 256-entry bucket
+# array here (it is validated before use).
+#native_table = 0x0000000000000000
+
+# Byte pattern alternative to the address above.  `??` is a wildcard.
+# Dump the instruction that loads the native table in your eboot and put it
+# here; the plugin logs the hit address so you can confirm it.
+#pattern.native_table = 48 8B 05 ?? ?? ?? ?? 48 85 C9 74
+
+# Game structures used by the memory-hack features (fill these from your own
+# 1.57 reverse engineering; they are NOT in this repo, and the PS3 ones in
+# Networking.h/addrstruct() are 32-bit and useless here).
+#world        = 0x0
+#ped_factory  = 0x0
+#player_info  = 0x0
+#vehicle_pool = 0x0

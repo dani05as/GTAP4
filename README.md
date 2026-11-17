@@ -12,3 +12,26 @@ I also do not take responsibility for what anybody else does with this code. Thi
 
 #### More Info
 You can find other repo's related to this project posted on my github.
+
+---
+
+## Port a PS4 / GoldHEN (GTA V 1.57)
+
+La carpeta [`ps4/`](ps4/) contiene el port de esta base a **nueva generación**:
+plugin `.prx` para **GoldHEN en PS4** con GTA V **1.57**.
+
+- Capa de natives PS3 → 1.57 traducida automáticamente: **4 577 de 4 646 (98,5 %)**
+  (`ps4/tools/gen_natives_ps4.py`, reporte en `ps4/build/native_report.md`).
+- Framework de menú portado con las mismas funciones y el mismo layout.
+- 10 páginas de referencia ya funcionando (self, armas, vehículos, teletransporte,
+  clima, jugadores, settings, debug…).
+- Capa de memoria/offsets para 1.57 vacía a propósito: ver `ps4/docs/PORTING.md`
+  §6 para saber qué features necesitan offsets y cuáles no son portables (RCE/RTM,
+  recovery).
+
+Build e instalación: ver [`ps4/README.md`](ps4/README.md).
+
+```bash
+export OO_PS4_TOOLCHAIN=/ruta/OpenOrbis-PS4-Toolchain
+cd ps4 && ./build.sh        # -> build/paradise_gta.prx -> /data/GoldHEN/plugins/
+```
