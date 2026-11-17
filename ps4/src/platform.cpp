@@ -41,11 +41,19 @@ extern "C" int32_t sceKernelUsleep(uint32_t usec);
 #include "native_invoker.h"
 #include "gta_ext.h"
 
+/* The OpenOrbis <time.h> declares clock_gettime() but not the CLOCK_* ids.
+ * Orbis is FreeBSD-based, where CLOCK_MONOTONIC == 4. */
+#ifndef CLOCK_MONOTONIC
+#define CLOCK_MONOTONIC 4
+#endif
+
 namespace plat {
 
 uint64_t now_us() {
     struct timespec ts = {};
-    clock_gettime(CLOCK_MONOTONIC, &ts);
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) {
+        return 0;
+    }
     return (uint64_t)ts.tv_sec * 1000000ull + (uint64_t)(ts.tv_nsec / 1000);
 }
 
