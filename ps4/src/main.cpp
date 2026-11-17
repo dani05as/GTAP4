@@ -40,11 +40,13 @@ PARADISE_PUBLIC uint32_t    g_pluginVersion = 0x00000100;   /* 1.00 */
 
 namespace {
 bool g_running = false;
-#ifndef PARADISE_HOSTCHECK
-int g_thread = -1;
-#endif
 
-void paradise_loop(void*) {
+/* Stack for the menu thread.  The pthread default is small and the menu walks
+ * the native table plus the page tree, so give it room. */
+constexpr size_t PARADISE_THREAD_STACK = 0x80000;   /* 512 KB */
+
+/* pthread entry point (scePthreadCreate wants void*(*)(void*)). */
+void* paradise_thread(void*) {
     LOGI("ParadiseGTA PS4: thread up");
 
     offset::load_config();
@@ -59,7 +61,7 @@ void paradise_loop(void*) {
 
     if (!native::ready()) {
         LOGE("giving up: native layer unavailable, menu disabled");
-        return;
+        return nullptr;
     }
 
     menu_init();
@@ -75,6 +77,7 @@ void paradise_loop(void*) {
         }
     }
     LOGI("ParadiseGTA PS4: thread exit");
+    return nullptr;
 }
 
 }  // namespace
@@ -91,16 +94,32 @@ PARADISE_PUBLIC int32_t plugin_load(int32_t argc, const char* argv[]) {
     LOGI("GoldHEN SDK 0x%08x / system 0x%08x", GOLDHEN_SDK_VERSION, sys_sdk_version());
 
     g_running = true;
-    /* Last parameter is declared differently across toolchain versions
-       (uint32_t vs void*); 0 is valid for both. */
-    g_thread = sceKernelCreateThread("paradise_gta", (void*)paradise_loop, 0x100,
-                                     0x40000, 0, 0);
-    if (g_thread < 0) {
-        LOGE("could not create menu thread (0x%x)", g_thread);
+
+    /* Thread creation differs between toolchain versions:
+     *   - some declare sceKernelCreateThread() + sceKernelStartThread();
+     *   - the OpenOrbis 0.5.x headers used here only expose the pthread
+     *     wrappers (scePthreadCreate is exported by the libkernel stub).
+     * The pthread path works on both, so it is the one we use. */
+    OrbisPthreadAttr attr;
+    OrbisPthread     thread = {};
+    int32_t          res;
+
+    res = scePthreadAttrInit(&attr);
+    if (res == 0) {
+        res = scePthreadAttrSetstacksize(&attr, PARADISE_THREAD_STACK);
+    }
+    if (res == 0) {
+        res = scePthreadCreate(&thread, &attr, paradise_thread, nullptr,
+                               "paradise_gta");
+    }
+    scePthreadAttrDestroy(&attr);   /* create() already copied the attributes */
+
+    if (res != 0) {
+        LOGE("could not create menu thread (0x%x)", res);
         g_running = false;
         return -1;
     }
-    sceKernelStartThread(g_thread, 0, nullptr);
+    LOGI("menu thread started");
     return 0;
 }
 

@@ -101,6 +101,7 @@ cd ps4
 | `ERROR: .../link.x not found` | `OO_PS4_TOOLCHAIN` tiene que apuntar a la carpeta que contiene `link.x`, `include`, `lib` y `bin` |
 | `clang: command not found` | ventana equivocada: usá **MSYS2 MINGW64** y repetí el `pacman` |
 | `bad interpreter: ...^M` | finales de línea de Windows: `dos2unix Makefile build.sh` |
+| `use of undeclared identifier 'sceKernelCreateThread'` | tu versión del toolchain no tiene esa función; este port ya usa `scePthreadCreate()` (ver `docs/PORTING.md`) |
 
 > Si aparece cualquier otro error, mandame las últimas 20 líneas del texto y lo
 > miramos juntos. Es el paso donde más gente se traba y no es tu culpa.

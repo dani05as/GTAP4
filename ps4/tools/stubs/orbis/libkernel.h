@@ -10,10 +10,19 @@
 #pragma once
 #include <stdint.h>
 #include <stddef.h>
-int32_t sceKernelCreateThread(const char *name, void *entry, int prio, int stack, uint64_t attr, uint32_t param);
-int32_t sceKernelCreateThreadPtr(const char *name, void *entry, int prio, int stack, uint64_t attr, void *param);
-int32_t sceKernelStartThread(int32_t th, uint64_t arglen, void *argp);
+typedef struct _OrbisPthread *OrbisPthread;
+typedef struct _OrbisPthreadAttr { unsigned char _opaque[64]; } OrbisPthreadAttr;
+
+int32_t scePthreadAttrInit(OrbisPthreadAttr *);
+int32_t scePthreadAttrDestroy(OrbisPthreadAttr *);
+int32_t scePthreadAttrSetstacksize(OrbisPthreadAttr *, size_t);
+int32_t scePthreadCreate(OrbisPthread *, const OrbisPthreadAttr *,
+                         void *(*)(void *), void *, const char *);
 int32_t sceKernelUsleep(uint32_t usec);
+int32_t sceKernelMprotect(void *addr, size_t len, int prot);
+int32_t sceKernelMmap(void *addr, size_t len, int prot, int flags, int fd,
+                      int64_t offset, void **out);
+int32_t sceKernelMunmap(void *addr, size_t len);
 int32_t sceKernelMprotect(void *addr, size_t len, int prot);
 int32_t sceKernelMmap(void *addr, size_t len, int prot, int flags, int fd, int64_t offset, void **out);
 int32_t sceKernelMunmap(void *addr, size_t len);

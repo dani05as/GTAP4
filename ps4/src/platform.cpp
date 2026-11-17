@@ -33,6 +33,11 @@ void notify(const char* text) { LOGI("notify: %s", text); }
 #include <time.h>
 #include <orbis/libkernel.h>
 #include "Common.h"
+
+/* Some OpenOrbis header revisions do not declare sceKernelUsleep() even though
+ * the libkernel stub exports it.  The prototype is identical, so this is a
+ * no-op when the header already provides it. */
+extern "C" int32_t sceKernelUsleep(uint32_t usec);
 #include "native_invoker.h"
 #include "gta_ext.h"
 
