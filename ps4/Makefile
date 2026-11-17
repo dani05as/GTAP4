@@ -66,8 +66,11 @@ ifneq ($(strip $(TOOLCHAIN)),)
   endif
 endif
 
+# -Wno-unused-function: natives_ps4.h defines ~4600 static wrappers and only a
+# handful are used, which buries real diagnostics in thousands of warnings.
 COMMONFLAGS := --target=x86_64-pc-freebsd12-elf -fPIC -funwind-tables -c -O2 \
                -fcolor-diagnostics -Wall -Wno-unused-parameter \
+               -Wno-unused-function \
                -isysroot $(TOOLCHAIN) -isystem $(TOOLCHAIN)/include \
                -I$(INC_DIR) -I$(SDK_DIR)/include
 CXXFLAGS    := $(COMMONFLAGS) -std=c++17 -fno-exceptions -fno-rtti \
@@ -122,6 +125,11 @@ report: natives
 	@cat build/native_report.md | head -40
 
 # ---- helpers ---------------------------------------------------------
+# PC-only syntax check (tools/syntax_check.sh): compiles every source against a
+# stub <orbis/libkernel.h>, so no PS4 toolchain is needed.
+syntax:
+	./tools/syntax_check.sh
+
 hostcheck:
 	$(MAKE) -C hostcheck run
 
