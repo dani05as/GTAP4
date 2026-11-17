@@ -331,3 +331,33 @@ grep -n  "scePthreadAttrSetstacksize" "$OO_PS4_TOOLCHAIN/include/orbis/libkernel
 
 Si en cambio aparece `sceKernelCreateThread` declarado, también sirve: la firma
 es `(name, entry, prio, stack, attr, param)` y no requiere el paso de "start".
+
+### Reloj: `CLOCK_MONOTONIC` no existe en el header
+
+`<time.h>` de OpenOrbis declara `clock_gettime()` pero **no** las constantes
+`CLOCK_*`, así que `clock_gettime(CLOCK_MONOTONIC, &ts)` no compila:
+
+```
+src/platform.cpp:48:19: error: use of undeclared identifier 'CLOCK_MONOTONIC'
+```
+
+Orbis es FreeBSD y ahí `CLOCK_MONOTONIC == 4`. En vez de adivinar un número
+suelto dentro de la función, `now_us()` define la macro solo si el header no la
+trajo y trata el fallo de `clock_gettime()` como 0:
+
+```cpp
+#ifndef CLOCK_MONOTONIC
+#define CLOCK_MONOTONIC 4
+#endif
+
+uint64_t now_us() {
+    struct timespec ts = {};
+    if (clock_gettime(CLOCK_MONOTONIC, &ts) != 0) return 0;
+    return (uint64_t)ts.tv_sec * 1000000ull + (uint64_t)(ts.tv_nsec / 1000);
+}
+```
+
+Si algún día el link se queja de `clock_gettime` (no aparece en `libScePosix`),
+la alternativa es `sceKernelGetProcessTime()` del libkernel, que ya devuelve
+microsegundos y no necesita `timespec`.
+
